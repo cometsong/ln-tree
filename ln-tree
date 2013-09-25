@@ -1,0 +1,45 @@
+#!/bin/bash - 
+#===============================================================================
+#          FILE: ln-tree
+#         USAGE: ./ln-tree SRCDIR DSTDIR
+# 
+#   DESCRIPTION: create softlinks to all files from SRC into DST
+# 
+#        AUTHOR: B. Leopold (cometsong), bleopoldNOSPAM@uni-muenster.de
+#       CREATED: 2013-09-24 13:36:44+0200
+#===============================================================================
+shopt -s dotglob
+
+
+function usage () {
+    echo "Usage: ln-tree ln-src-dir ln-dest-dir"
+    echo "  This script will create all subdirectories found in 'ln-dest-dir'"
+    echo "  inside 'ln-src-dir' and then softlink all files."
+    echo
+    exit
+}
+
+
+if [ ${#@} == 2 ] ; then
+    SOURCEDIR=${1}
+    DESTDIR=${2}
+else
+    usage
+fi
+
+# check for leading slash
+if [[ ${SOURCEDIR:0:1} == "/" ]] ; then
+    SOURCEDIR=$SOURCEDIR
+else
+    SOURCEDIR="$PWD/$SOURCEDIR"
+fi
+
+
+echo "Creating links from $SOURCEDIR into $DESTDIR"
+
+find $SOURCEDIR -mindepth 1 -depth -type d -printf "%P\n" | \
+    while read SUBDIR; do mkdir -pv "$DESTDIR/$SUBDIR"; done
+find $SOURCEDIR -type f -printf "%P\n" | \
+    while read file; do ln -svf "$SOURCEDIR/$file" "$DESTDIR/$file"; done
+
+# vim: set ft=sh tabstop=4 shiftwidth=4: 
